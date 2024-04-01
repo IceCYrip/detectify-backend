@@ -210,19 +210,19 @@ app.post('/upload/profile', (req, res) => {
 
 // product
 
-app.post('/upload/product', (req, res) => {
-  let upload = multer({ storage: storageProduct }).single('image')
+// app.post('/upload/product', (req, res) => {
+//   let upload = multer({ storage: storageProduct }).single('image')
 
-  upload(req, res, (err) => {
-    if (!req.file) {
-      return res.send('Please select an image to upload')
-    } else if (err instanceof multer.MulterError) {
-      return res.send(err)
-    } else if (err) {
-      return res.send(err)
-    }
-  })
-})
+//   upload(req, res, (err) => {
+//     if (!req.file) {
+//       return res.send('Please select an image to upload')
+//     } else if (err instanceof multer.MulterError) {
+//       return res.send(err)
+//     } else if (err) {
+//       return res.send(err)
+//     }
+//   })
+// })
 
 app.get('/file/profile/:fileName', function (req, res) {
   const { fileName } = req.params
@@ -237,8 +237,17 @@ app.get('/file/product/:fileName', function (req, res) {
 })
 
 app.get('/product/serialNumber', async (req, res) => {
-  const data = await client.query(`SELECT serialNumber FROM product`)
-  res.send(data.rows)
+  try {
+    const data = await client.query(
+      `SELECT serialNumber FROM product ORDER BY serialNumber DESC LIMIT 1`
+    )
+    console.log('sangPatkan: ', data?.rows, !!data?.rows?.length)
+    res
+      .status(200)
+      .send(!!data?.rows?.length ? data?.rows?.[0] : { serialnumber: 0 })
+  } catch (error) {
+    res.status(500).send(error)
+  }
 })
 
 app.post('/product/verify', async (req, res) => {
@@ -268,7 +277,9 @@ app.post('/addproduct', async (req, res) => {
           async (err, qrRes) => {
             if (err) {
               console.log(err.message)
+              res.status(500).send('Duplicate Serial Number')
             } else {
+              console.log('qrRes: ', qrRes)
               let fetchedQR = await client.query(
                 `SELECT qr_code FROM product where serialnumber = ${serialNumber}`
               )
