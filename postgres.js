@@ -210,19 +210,19 @@ app.post('/upload/profile', (req, res) => {
 
 // product
 
-// app.post('/upload/product', (req, res) => {
-//   let upload = multer({ storage: storageProduct }).single('image')
+app.post('/upload/product', (req, res) => {
+  let upload = multer({ storage: storageProduct }).single('image')
 
-//   upload(req, res, (err) => {
-//     if (!req.file) {
-//       return res.send('Please select an image to upload')
-//     } else if (err instanceof multer.MulterError) {
-//       return res.send(err)
-//     } else if (err) {
-//       return res.send(err)
-//     }
-//   })
-// })
+  upload(req, res, (err) => {
+    if (!req.file) {
+      return res.send('Please select an image to upload')
+    } else if (err instanceof multer.MulterError) {
+      return res.send(err)
+    } else if (err) {
+      return res.send(err)
+    }
+  })
+})
 
 app.get('/file/profile/:fileName', function (req, res) {
   const { fileName } = req.params
